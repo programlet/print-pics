@@ -46,6 +46,10 @@
 #include <M5Stack.h>
 #endif
 
+#if defined(ARDUINO_M5Stack_Core2)
+#include <M5Core2.h>
+#endif
+
 #include "USBPrinter.h"
 #include "ESC_POS_Printer.h"
 #if defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_ESP32)
@@ -103,16 +107,25 @@ USBPrinter uprinter(&myusb, &AsyncOper);
 ESC_POS_Printer printer(&uprinter);
 
 void setup() {
-#if defined(ARDUINO_M5Stack_Core_ESP32)
+#if defined(ARDUINO_M5Stack_Core_ESP32) || defined(ARDUINO_M5Stack_Core2)
   M5.begin();
-  M5.Lcd.print("pics.ino");
+  M5.Lcd.println("pics.ino");
 #endif
   //Initialize serial and wait for port to open:
   DBSerial.begin(115200);
-  if (myusb.Init())
+  while (!DBSerial && millis() < 3000) delay(1);
+
+  if (myusb.Init()) {
+#if defined(ARDUINO_M5Stack_Core_ESP32) || defined(ARDUINO_M5Stack_Core2)
+    M5.Lcd.println("USB host failed to initialize");
+#endif
     Serial.println(F("USB host failed to initialize"));
+  }
   delay(100);
   DBSerial.println();
+#if defined(ARDUINO_M5Stack_Core_ESP32) || defined(ARDUINO_M5Stack_Core2)
+  M5.Lcd.println("setup() has done");
+#endif
 }
 
 bool printed = false;
@@ -121,7 +134,14 @@ void loop() {
   myusb.Task();
 
   if (!printed && uprinter.isReady()) {
+#if defined(ARDUINO_M5Stack_Core_ESP32) || defined(ARDUINO_M5Stack_Core2)
+    M5.Lcd.println("uprinter.isReady()");
+#endif
+
     printer.begin();
+    printer.setSize('L');   // L for large
+    printer.println(F("Hello printer"));
+
 #if defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_ESP32)
     printer.printBitmap(qrcode_width, qrcode_height, qrcode_data, qrcode_density);
     printer.printBitmap(mkr1010_width, mkr1010_height, mkr1010_data, mkr1010_density);

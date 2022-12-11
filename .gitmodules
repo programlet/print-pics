@@ -1,0 +1,9 @@
+[submodule "lib/USB_Host_Shield_2.0"]
+	path = lib/USB_Host_Shield_2.0
+	url = https://github.com/felis/USB_Host_Shield_2.0.git
+[submodule "lib/USBPrinter_uhs2"]
+	path = lib/USBPrinter_uhs2
+	url = https://github.com/gdsports/USBPrinter_uhs2.git
+[submodule "lib/ESC_POS_Printer"]
+	path = lib/ESC_POS_Printer
+	url = https://github.com/gdsports/ESC_POS_Printer.git
